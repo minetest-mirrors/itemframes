@@ -1,5 +1,7 @@
 local tmp = {}
 
+-- item entity
+
 minetest.register_entity("itemframes:item",{
 	hp_max = 1,
 	visual="wielditem",
@@ -37,12 +39,13 @@ minetest.register_entity("itemframes:item",{
 	end,
 })
 
-
 local facedir = {}
 facedir[0] = {x=0,y=0,z=1}
 facedir[1] = {x=1,y=0,z=0}
 facedir[2] = {x=0,y=0,z=-1}
 facedir[3] = {x=-1,y=0,z=0}
+
+-- functions
 
 local remove_item = function(pos, node)
 	local objs = nil
@@ -96,6 +99,8 @@ local drop_item = function(pos, node)
 	remove_item(pos, node)
 end
 
+-- nodes
+
 minetest.register_node("itemframes:frame",{
 	description = "Item frame",
 	drawtype = "nodebox",
@@ -112,7 +117,7 @@ minetest.register_node("itemframes:frame",{
 	sounds = default.node_sound_defaults(),
 	after_place_node = function(pos, placer, itemstack)
 		local meta = minetest.get_meta(pos)
-		meta:set_string("infotext","Item frame (right-click to place/drop item)")
+		meta:set_string("infotext","Item frame (right-click to add or remove item)")
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack)
 		if not itemstack then return end
@@ -132,7 +137,6 @@ minetest.register_node("itemframes:frame",{
 	end,
 })
 
-
 minetest.register_node("itemframes:pedestal",{
 	description = "Pedestal",
 	drawtype = "nodebox",
@@ -149,7 +153,7 @@ minetest.register_node("itemframes:pedestal",{
 	sounds = default.node_sound_defaults(),
 	after_place_node = function(pos, placer, itemstack)
 		local meta = minetest.get_meta(pos)
-		meta:set_string("infotext","Pedestal (right-click to place/drop item)")
+		meta:set_string("infotext","Pedestal (right-click to add or remove item)")
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack)
 		if not itemstack then return end
@@ -198,6 +202,7 @@ minetest.register_craft({
 		{'default:stick', 'default:stick', 'default:stick'},
 	}
 })
+
 minetest.register_craft({
 	output = 'itemframes:pedestal',
 	recipe = {
