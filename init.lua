@@ -1,4 +1,5 @@
 local tmp = {}
+screwdriver = screwdriver or {}
 
 -- item entity
 
@@ -10,6 +11,7 @@ minetest.register_entity("itemframes:item",{
 	physical = false,
 	textures = {"air"},
 	on_activate = function(self, staticdata)
+if mobs and mobs.entity == false then self.object:remove() end
 		if tmp.nodename ~= nil and tmp.texture ~= nil then
 			self.nodename = tmp.nodename
 			tmp.nodename = nil
@@ -93,7 +95,6 @@ local drop_item = function(pos, node)
 	local meta = minetest.get_meta(pos)
 	if meta:get_string("item") ~= "" then
 		if node.name == "itemframes:frame" then
-		print ("meta", meta:get_string("item"))
 			minetest.add_item(pos, meta:get_string("item"))
 		elseif node.name == "itemframes:pedestal" then
 			pos.y = pos.y + 1
@@ -127,6 +128,7 @@ minetest.register_node("itemframes:frame",{
 	groups = {choppy = 2, dig_immediate = 2},
 	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
+	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
 		local meta = minetest.get_meta(pos)
@@ -148,12 +150,7 @@ minetest.register_node("itemframes:frame",{
 	end,
 
 	on_destruct = function(pos)
-		local meta = minetest.get_meta(pos)
-		local node = minetest.get_node(pos)
-		print ("destructing")
-		if meta:get_string("item") ~= "" then
-			drop_item(pos, node)
-		end
+		drop_item(pos, minetest.get_node(pos))
 	end,
 
 	on_punch = function(pos, node, puncher)
@@ -178,6 +175,7 @@ minetest.register_node("itemframes:pedestal",{
 	paramtype = "light",
 	groups = {cracky = 3},
 	sounds = default.node_sound_defaults(),
+	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
 		local meta = minetest.get_meta(pos)
@@ -199,12 +197,7 @@ minetest.register_node("itemframes:pedestal",{
 	end,
 
 	on_destruct = function(pos)
-		local meta = minetest.get_meta(pos)
-		local node = minetest.get_node(pos)
-		print ("destructing")
-		if meta:get_string("item") ~= "" then
-			drop_item(pos, node)
-		end
+		drop_item(pos, minetest.get_node(pos))
 	end,
 
 	on_punch = function(pos, node, puncher)
