@@ -11,7 +11,12 @@ minetest.register_entity("itemframes:item",{
 	physical = false,
 	textures = {"air"},
 	on_activate = function(self, staticdata)
-if mobs and mobs.entity == false then self.object:remove() end
+
+if mobs and mobs.entity and mobs.entity == false then
+	self.object:remove()
+	return
+end
+
 		if tmp.nodename ~= nil and tmp.texture ~= nil then
 			self.nodename = tmp.nodename
 			tmp.nodename = nil
