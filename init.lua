@@ -217,6 +217,7 @@ minetest.register_abm({
 	nodenames = {"itemframes:frame", "itemframes:pedestal"},
 	interval = 15,
 	chance = 1,
+	catch_up = false,
 	action = function(pos, node, active_object_count, active_object_count_wider)
 
 		local num
