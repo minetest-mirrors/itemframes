@@ -1,5 +1,8 @@
-local tmp = {}
+
 screwdriver = screwdriver or {}
+
+local tmp = {}
+local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 49
 
 -- item entity
 
@@ -12,41 +15,55 @@ minetest.register_entity("itemframes:item",{
 	textures = {"air"},
 	on_activate = function(self, staticdata)
 
-if mobs and mobs.entity and mobs.entity == false then
-	self.object:remove()
-	return
-end
+		if mobs and mobs.entity and mobs.entity == false then
+			self.object:remove()
+			return
+		end
 
-		if tmp.nodename ~= nil and tmp.texture ~= nil then
+		if tmp.nodename ~= nil
+		and tmp.texture ~= nil then
+
 			self.nodename = tmp.nodename
 			tmp.nodename = nil
 			self.texture = tmp.texture
 			tmp.texture = nil
 		else
-			if staticdata ~= nil and staticdata ~= "" then
+			if staticdata ~= nil
+			and staticdata ~= "" then
+
 				local data = staticdata:split(';')
+
 				if data and data[1] and data[2] then
+
 					self.nodename = data[1]
 					self.texture = data[2]
 				end
 			end
 		end
+
 		if self.texture ~= nil then
 			self.object:set_properties({textures = {self.texture}})
 		end
+
 		if self.nodename == "itemframes:pedestal" then
 			self.object:set_properties({automatic_rotate = 1})
 		end
+
 	end,
+
 	get_staticdata = function(self)
-		if self.nodename ~= nil and self.texture ~= nil then
+
+		if self.nodename ~= nil
+		and self.texture ~= nil then
 			return self.nodename .. ';' .. self.texture
 		end
+
 		return ""
 	end,
 })
 
 local facedir = {}
+
 facedir[0] = {x = 0, y = 0, z = 1}
 facedir[1] = {x = 1, y = 0, z = 0}
 facedir[2] = {x = 0, y = 0, z = -1}
@@ -55,16 +72,24 @@ facedir[3] = {x = -1, y = 0, z = 0}
 -- functions
 
 local remove_item = function(pos, node)
+
 	local objs = nil
+
 	if node.name == "itemframes:frame" then
+
 		objs = minetest.get_objects_inside_radius(pos, 0.5)
+
 	elseif node.name == "itemframes:pedestal" then
+
 		pos.y = pos.y + 1
 		objs = minetest.get_objects_inside_radius(pos, 0.5)
 		pos.y = pos.y - 1
 	end
+
 	if objs then
-		for _, obj in ipairs(objs) do
+
+		for _, obj in pairs(objs) do
+
 			if obj and obj:get_luaentity()
 			and obj:get_luaentity().name == "itemframes:item" then
 				obj:remove()
@@ -74,41 +99,64 @@ local remove_item = function(pos, node)
 end
 
 local update_item = function(pos, node)
+
 	remove_item(pos, node)
+
 	local meta = minetest.get_meta(pos)
+
 	if meta:get_string("item") ~= "" then
+
 		if node.name == "itemframes:frame" then
+
 			local posad = facedir[node.param2]
+
 			if not posad then return end
+
 			pos.x = pos.x + posad.x * 6.5 / 16
 			pos.y = pos.y + posad.y * 6.5 / 16
 			pos.z = pos.z + posad.z * 6.5 / 16
+
 		elseif node.name == "itemframes:pedestal" then
 			pos.y = pos.y + 12 / 16 + 0.33
 		end
+
 		tmp.nodename = node.name
 		tmp.texture = ItemStack(meta:get_string("item")):get_name()
+
 		local e = minetest.add_entity(pos,"itemframes:item")
+
 		if node.name == "itemframes:frame" then
+
 			local yaw = math.pi * 2 - node.param2 * math.pi / 2
+
 			e:setyaw(yaw)
 		end
 	end
 end
 
-local drop_item = function(pos, node)
-	local meta = minetest.get_meta(pos)
-	if meta:get_string("item") ~= "" then
+local drop_item = function(pos, node, metadata)
+
+	local meta = metadata or minetest.get_meta(pos)
+	local item = meta:get_string("item")
+
+	meta:set_string("item", "")
+
+	if item ~= "" then
+
 		if node.name == "itemframes:frame" then
-			minetest.add_item(pos, meta:get_string("item"))
+			minetest.add_item(pos, item)
+
 		elseif node.name == "itemframes:pedestal" then
+
 			pos.y = pos.y + 1
-			minetest.add_item(pos, meta:get_string("item"))
+			minetest.add_item(pos, item)
 			pos.y = pos.y - 1
 		end
-		meta:set_string("item","")
+
+		remove_item(pos, node)
+
 	end
-	remove_item(pos, node)
+
 end
 
 -- nodes
@@ -136,20 +184,31 @@ minetest.register_node("itemframes:frame",{
 	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
+
 		local meta = minetest.get_meta(pos)
+
 		meta:set_string("infotext","Item frame (right-click to add/remove item)")
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
-		if not itemstack then return end
-		if minetest.is_protected(pos, clicker:get_player_name()) then return end
+
+		if not itemstack
+		or minetest.is_protected(pos, clicker:get_player_name()) then
+			return
+		end
+
 		local meta = minetest.get_meta(pos)
+
 		if meta:get_string("item") ~= "" then
-			drop_item(pos,node)
+
+			drop_item(pos, node, meta)
 		else
 			local s = itemstack:take_item()
+
 			meta:set_string("item", s:to_string())
-			update_item(pos,node)
+
+			update_item(pos, node)
+
 			return itemstack
 		end
 	end,
@@ -160,6 +219,15 @@ minetest.register_node("itemframes:frame",{
 
 	on_punch = function(pos, node, puncher)
 		update_item(pos, node)
+	end,
+
+	on_blast = function(pos, intensity)
+
+		drop_item(pos, minetest.get_node(pos))
+
+		minetest.add_item(pos, {name = "itemframes:frame"})
+
+		minetest.remove_node(pos)
 	end,
 })
 
@@ -183,20 +251,31 @@ minetest.register_node("itemframes:pedestal",{
 	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
+
 		local meta = minetest.get_meta(pos)
+
 		meta:set_string("infotext","Pedestal (right-click to add/remove item)")
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
-		if not itemstack then return end
-		if minetest.is_protected(pos, clicker:get_player_name()) then return end
+
+		if not itemstack
+		or minetest.is_protected(pos, clicker:get_player_name()) then
+			return
+		end
+
 		local meta = minetest.get_meta(pos)
+
 		if meta:get_string("item") ~= "" then
-			drop_item(pos, node)
+
+			drop_item(pos, node, meta)
 		else
 			local s = itemstack:take_item()
+
 			meta:set_string("item", s:to_string())
-			update_item(pos,node)
+
+			update_item(pos, node)
+
 			return itemstack
 		end
 	end,
@@ -208,6 +287,15 @@ minetest.register_node("itemframes:pedestal",{
 	on_punch = function(pos, node, puncher)
 		update_item(pos, node)
 	end,
+
+	on_blast = function(pos, intensity)
+
+		drop_item(pos, minetest.get_node(pos))
+
+		minetest.add_item(pos, {name = "itemframes:pedestal"})
+
+		minetest.remove_node(pos)
+	end,
 })
 
 -- automatically restore entities lost from frames/pedestals
@@ -218,19 +306,29 @@ minetest.register_abm({
 	interval = 15,
 	chance = 1,
 	catch_up = false,
+
 	action = function(pos, node, active_object_count, active_object_count_wider)
+
+		if active_object_count >= max_objs then
+			return
+		end
 
 		local num
 
 		if node.name == "itemframes:frame" then
 			num = #minetest.get_objects_inside_radius(pos, 0.5)
+
 		elseif node.name == "itemframes:pedestal" then
+
 			pos.y = pos.y + 1
 			num = #minetest.get_objects_inside_radius(pos, 0.5)
 			pos.y = pos.y - 1
 		end
 
-		if num > 0 then return end
+		if num > 0 then
+			return
+		end
+
 		update_item(pos, node)
 	end
 })
