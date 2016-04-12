@@ -354,3 +354,9 @@ minetest.register_craft({
 		{'default:stone', 'default:stone', 'default:stone'},
 	}
 })
+
+-- stop mesecon pistons from pushing itemframe and pedestals
+if minetest.get_modpath("mesecons_mvps") then
+	mesecon.register_mvps_stopper("itemframes:frame")
+	mesecon.register_mvps_stopper("itemframes:pedestal")
+end
