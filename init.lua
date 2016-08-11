@@ -15,7 +15,8 @@ minetest.register_entity("itemframes:item",{
 	textures = {"air"},
 	on_activate = function(self, staticdata)
 
-		if mobs and mobs.entity and mobs.entity == false then
+		if (mobs and mobs.entity and mobs.entity == false)
+		or not self then
 			self.object:remove()
 			return
 		end
@@ -103,7 +104,7 @@ local update_item = function(pos, node)
 	remove_item(pos, node)
 
 	local meta = minetest.get_meta(pos)
-
+if not meta then return end
 	if meta:get_string("item") ~= "" then
 
 		if node.name == "itemframes:frame" then
@@ -137,6 +138,7 @@ end
 local drop_item = function(pos, node, metadata)
 
 	local meta = metadata or minetest.get_meta(pos)
+if not meta then return end
 	local item = meta:get_string("item")
 
 	meta:set_string("item", "")
@@ -198,7 +200,7 @@ minetest.register_node("itemframes:frame",{
 		end
 
 		local meta = minetest.get_meta(pos)
-
+if not meta then return end
 		if meta:get_string("item") ~= "" then
 
 			drop_item(pos, node, meta)
@@ -267,7 +269,7 @@ minetest.register_node("itemframes:pedestal",{
 		end
 
 		local meta = minetest.get_meta(pos)
-
+if not meta then return end
 		if meta:get_string("item") ~= "" then
 
 			drop_item(pos, node, meta)
@@ -302,7 +304,7 @@ minetest.register_node("itemframes:pedestal",{
 
 -- automatically restore entities lost from frames/pedestals
 -- due to /clearobjects or similar
-
+--[[
 minetest.register_abm({
 	nodenames = {"itemframes:frame", "itemframes:pedestal"},
 	interval = 15,
@@ -334,7 +336,7 @@ minetest.register_abm({
 		update_item(pos, node)
 	end
 })
-
+]]
 -- crafts
 
 minetest.register_craft({
