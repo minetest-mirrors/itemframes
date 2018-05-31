@@ -4,6 +4,7 @@ screwdriver = screwdriver or {}
 local tmp = {}
 local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 49
 
+
 -- item entity
 
 minetest.register_entity("itemframes:item",{
@@ -15,8 +16,7 @@ minetest.register_entity("itemframes:item",{
 	textures = {"air"},
 	on_activate = function(self, staticdata)
 
-		if (mobs and mobs.entity and mobs.entity == false)
-		or not self then
+		if not self then
 			self.object:remove()
 			return
 		end
@@ -70,6 +70,7 @@ facedir[1] = {x = 1, y = 0, z = 0}
 facedir[2] = {x = 0, y = 0, z = -1}
 facedir[3] = {x = -1, y = 0, z = 0}
 
+
 -- functions
 
 local remove_item = function(pos, node)
@@ -99,12 +100,13 @@ local remove_item = function(pos, node)
 	end
 end
 
+
 local update_item = function(pos, node)
 
 	remove_item(pos, node)
 
-	local meta = minetest.get_meta(pos)
-if not meta then return end
+	local meta = minetest.get_meta(pos); if not meta then return end
+
 	if meta:get_string("item") ~= "" then
 
 		if node.name == "itemframes:frame" then
@@ -128,17 +130,18 @@ if not meta then return end
 
 		if node.name == "itemframes:frame" then
 
-			local yaw = math.pi * 2 - node.param2 * math.pi / 2
+			--local yaw = math.pi * 2 - node.param2 * math.pi / 2
+			local yaw = 6.28 - node.param2 * 1.57
 
 			e:setyaw(yaw)
 		end
 	end
 end
 
+
 local drop_item = function(pos, node, metadata)
 
-	local meta = metadata or minetest.get_meta(pos)
-if not meta then return end
+	local meta = metadata or minetest.get_meta(pos) ; if not meta then return end
 	local item = meta:get_string("item")
 
 	meta:set_string("item", "")
@@ -161,6 +164,7 @@ if not meta then return end
 
 end
 
+
 -- nodes
 
 minetest.register_node("itemframes:frame",{
@@ -180,7 +184,7 @@ minetest.register_node("itemframes:frame",{
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
-	groups = {choppy = 2, dig_immediate = 2},
+	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
 	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
 	on_rotate = screwdriver.disallow,
@@ -189,7 +193,7 @@ minetest.register_node("itemframes:frame",{
 
 		local meta = minetest.get_meta(pos)
 
-		meta:set_string("infotext","Item frame (right-click to add/remove item)")
+		meta:set_string("infotext","Item frame (right-click to add or remove item)")
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
@@ -199,8 +203,8 @@ minetest.register_node("itemframes:frame",{
 			return
 		end
 
-		local meta = minetest.get_meta(pos)
-if not meta then return end
+		local meta = minetest.get_meta(pos) ; if not meta then return end
+
 		if meta:get_string("item") ~= "" then
 
 			drop_item(pos, node, meta)
@@ -231,7 +235,15 @@ if not meta then return end
 
 		minetest.remove_node(pos)
 	end,
+
+	on_burn = function(pos)
+
+		drop_item(pos, minetest.get_node(pos))
+
+		minetest.remove_node(pos)
+	end,
 })
+
 
 minetest.register_node("itemframes:pedestal",{
 	description = "Pedestal",
@@ -258,7 +270,7 @@ minetest.register_node("itemframes:pedestal",{
 
 		local meta = minetest.get_meta(pos)
 
-		meta:set_string("infotext","Pedestal (right-click to add/remove item)")
+		meta:set_string("infotext","Pedestal (right-click to add or remove item)")
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
@@ -268,8 +280,8 @@ minetest.register_node("itemframes:pedestal",{
 			return
 		end
 
-		local meta = minetest.get_meta(pos)
-if not meta then return end
+		local meta = minetest.get_meta(pos) ; if not meta then return end
+
 		if meta:get_string("item") ~= "" then
 
 			drop_item(pos, node, meta)
@@ -301,6 +313,7 @@ if not meta then return end
 		minetest.remove_node(pos)
 	end,
 })
+
 
 -- automatically restore entities lost from frames/pedestals
 -- due to /clearobjects or similar
@@ -337,6 +350,7 @@ minetest.register_abm({
 	end
 })
 ]]
+
 -- crafts
 
 minetest.register_craft({
