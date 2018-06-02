@@ -63,6 +63,8 @@ minetest.register_entity("itemframes:item",{
 	end,
 })
 
+-- helper table
+
 local facedir = {}
 
 facedir[0] = {x = 0, y = 0, z = 1}
@@ -74,14 +76,14 @@ facedir[3] = {x = -1, y = 0, z = 0}
 
 local remove_item = function(pos, nodename)
 
-	local y = 0
+	local ypos = 0
 
 	if nodename == "itemframes:pedestal" then
-		y = 1
+		ypos = 1
 	end
 
 	local objs = minetest.get_objects_inside_radius({
-			x = pos.x, y = pos.y + y, z = pos.z}, 0.5)
+			x = pos.x, y = pos.y + ypos, z = pos.z}, 0.5)
 
 	if objs then
 
