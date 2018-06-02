@@ -4,16 +4,16 @@ screwdriver = screwdriver or {}
 local tmp = {}
 local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 49
 
-
 -- item entity
 
 minetest.register_entity("itemframes:item",{
 	hp_max = 1,
-	visual="wielditem",
-	visual_size={x = 0.33, y = 0.33},
+	visual = "wielditem",
+	visual_size = {x = 0.33, y = 0.33},
 	collisionbox = {0, 0, 0, 0, 0, 0},
 	physical = false,
 	textures = {"air"},
+
 	on_activate = function(self, staticdata)
 
 		if not self then
@@ -70,23 +70,18 @@ facedir[1] = {x = 1, y = 0, z = 0}
 facedir[2] = {x = 0, y = 0, z = -1}
 facedir[3] = {x = -1, y = 0, z = 0}
 
+-- remove entities
 
--- functions
+local remove_item = function(pos, nodename)
 
-local remove_item = function(pos, node)
+	local y = 0
 
-	local objs = nil
-
-	if node.name == "itemframes:frame" then
-
-		objs = minetest.get_objects_inside_radius(pos, 0.5)
-
-	elseif node.name == "itemframes:pedestal" then
-
-		pos.y = pos.y + 1
-		objs = minetest.get_objects_inside_radius(pos, 0.5)
-		pos.y = pos.y - 1
+	if nodename == "itemframes:pedestal" then
+		y = 1
 	end
+
+	local objs = minetest.get_objects_inside_radius({
+			x = pos.x, y = pos.y + y, z = pos.z}, 0.5)
 
 	if objs then
 
@@ -100,12 +95,15 @@ local remove_item = function(pos, node)
 	end
 end
 
+-- update entity
 
 local update_item = function(pos, node)
 
-	remove_item(pos, node)
+	remove_item(pos, node.name)
 
-	local meta = minetest.get_meta(pos); if not meta then return end
+	local meta = minetest.get_meta(pos)
+
+	if not meta then return end
 
 	if meta:get_string("item") ~= "" then
 
@@ -120,6 +118,7 @@ local update_item = function(pos, node)
 			pos.z = pos.z + posad.z * 6.5 / 16
 
 		elseif node.name == "itemframes:pedestal" then
+
 			pos.y = pos.y + 12 / 16 + 0.33
 		end
 
@@ -138,34 +137,31 @@ local update_item = function(pos, node)
 	end
 end
 
+-- remove entity and drop as item
 
-local drop_item = function(pos, node, metadata)
+local drop_item = function(pos, nodename, metadata)
 
-	local meta = metadata or minetest.get_meta(pos) ; if not meta then return end
+	local meta = metadata or minetest.get_meta(pos)
+
+	if not meta then return end
+
 	local item = meta:get_string("item")
 
 	meta:set_string("item", "")
 
 	if item ~= "" then
 
-		if node.name == "itemframes:frame" then
-			minetest.add_item(pos, item)
+		remove_item(pos, nodename)
 
-		elseif node.name == "itemframes:pedestal" then
-
+		if nodename == "itemframes:pedestal" then
 			pos.y = pos.y + 1
-			minetest.add_item(pos, item)
-			pos.y = pos.y - 1
 		end
 
-		remove_item(pos, node)
-
+		minetest.add_item(pos, item)
 	end
-
 end
 
-
--- nodes
+-- itemframe node and recipe
 
 minetest.register_node("itemframes:frame",{
 	description = "Item frame",
@@ -203,11 +199,13 @@ minetest.register_node("itemframes:frame",{
 			return
 		end
 
-		local meta = minetest.get_meta(pos) ; if not meta then return end
+		local meta = minetest.get_meta(pos)
+
+		if not meta then return end
 
 		if meta:get_string("item") ~= "" then
 
-			drop_item(pos, node, meta)
+			drop_item(pos, node.name, meta)
 		else
 			local s = itemstack:take_item()
 
@@ -220,7 +218,7 @@ minetest.register_node("itemframes:frame",{
 	end,
 
 	on_destruct = function(pos)
-		drop_item(pos, minetest.get_node(pos))
+		drop_item(pos, "itemframes:frame")
 	end,
 
 	on_punch = function(pos, node, puncher)
@@ -229,21 +227,31 @@ minetest.register_node("itemframes:frame",{
 
 	on_blast = function(pos, intensity)
 
-		drop_item(pos, minetest.get_node(pos))
+		drop_item(pos, "itemframes:frame")
 
 		minetest.add_item(pos, {name = "itemframes:frame"})
 
-		minetest.remove_node(pos)
+		minetest.remove_node(pos, "itemframes:frame")
 	end,
 
 	on_burn = function(pos)
 
-		drop_item(pos, minetest.get_node(pos))
+		drop_item(pos, "itemframes:frame")
 
 		minetest.remove_node(pos)
 	end,
 })
 
+minetest.register_craft({
+	output = "itemframes:frame",
+	recipe = {
+		{"default:stick", "default:stick", "default:stick"},
+		{"default:stick", "default:paper", "default:stick"},
+		{"default:stick", "default:stick", "default:stick"},
+	}
+})
+
+-- pedestal node and recipe
 
 minetest.register_node("itemframes:pedestal",{
 	description = "Pedestal",
@@ -280,12 +288,15 @@ minetest.register_node("itemframes:pedestal",{
 			return
 		end
 
-		local meta = minetest.get_meta(pos) ; if not meta then return end
+		local meta = minetest.get_meta(pos)
+
+		if not meta then return end
 
 		if meta:get_string("item") ~= "" then
 
-			drop_item(pos, node, meta)
+			drop_item(pos, node.name, meta)
 		else
+
 			local s = itemstack:take_item()
 
 			meta:set_string("item", s:to_string())
@@ -297,7 +308,7 @@ minetest.register_node("itemframes:pedestal",{
 	end,
 
 	on_destruct = function(pos)
-		drop_item(pos, minetest.get_node(pos))
+		drop_item(pos, "itemframes:pedestal")
 	end,
 
 	on_punch = function(pos, node, puncher)
@@ -306,7 +317,7 @@ minetest.register_node("itemframes:pedestal",{
 
 	on_blast = function(pos, intensity)
 
-		drop_item(pos, minetest.get_node(pos))
+		drop_item(pos, "itemframes:pedestal")
 
 		minetest.add_item(pos, {name = "itemframes:pedestal"})
 
@@ -314,13 +325,21 @@ minetest.register_node("itemframes:pedestal",{
 	end,
 })
 
+minetest.register_craft({
+	output = "itemframes:pedestal",
+	recipe = {
+		{"default:stone", "default:stone", "default:stone"},
+		{"", "default:stone", ""},
+		{"default:stone", "default:stone", "default:stone"},
+	}
+})
 
 -- automatically restore entities lost from frames/pedestals
 -- due to /clearobjects or similar
 --[[
 minetest.register_abm({
 	nodenames = {"itemframes:frame", "itemframes:pedestal"},
-	interval = 15,
+	interval = 25,
 	chance = 1,
 	catch_up = false,
 
@@ -351,27 +370,8 @@ minetest.register_abm({
 })
 ]]
 
--- crafts
-
-minetest.register_craft({
-	output = 'itemframes:frame',
-	recipe = {
-		{'default:stick', 'default:stick', 'default:stick'},
-		{'default:stick', 'default:paper', 'default:stick'},
-		{'default:stick', 'default:stick', 'default:stick'},
-	}
-})
-
-minetest.register_craft({
-	output = 'itemframes:pedestal',
-	recipe = {
-		{'default:stone', 'default:stone', 'default:stone'},
-		{'', 'default:stone', ''},
-		{'default:stone', 'default:stone', 'default:stone'},
-	}
-})
-
 -- stop mesecon pistons from pushing itemframe and pedestals
+
 if minetest.get_modpath("mesecons_mvps") then
 	mesecon.register_mvps_stopper("itemframes:frame")
 	mesecon.register_mvps_stopper("itemframes:pedestal")
