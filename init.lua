@@ -28,16 +28,19 @@ minetest.register_entity("itemframes:item",{
 			tmp.nodename = nil
 			self.texture = tmp.texture
 			tmp.texture = nil
+			self.glow = tmp.glow
+			tmp.glow = nil
 		else
 			if staticdata ~= nil
 			and staticdata ~= "" then
 
-				local data = staticdata:split(';')
+				local data = staticdata:split(";")
 
 				if data and data[1] and data[2] then
 
 					self.nodename = data[1]
 					self.texture = data[2]
+					self.glow = data[3]
 				end
 			end
 		end
@@ -50,13 +53,16 @@ minetest.register_entity("itemframes:item",{
 			self.object:set_properties({automatic_rotate = 1})
 		end
 
+		if self.glow ~= nil then
+			self.object:set_properties({glow = self.glow})
+		end
 	end,
 
 	get_staticdata = function(self)
 
 		if self.nodename ~= nil
 		and self.texture ~= nil then
-			return self.nodename .. ';' .. self.texture
+			return self.nodename .. ";" .. self.texture .. ";" .. (self.glow or "")
 		end
 
 		return ""
@@ -107,7 +113,9 @@ local update_item = function(pos, node)
 
 	if not meta then return end
 
-	if meta:get_string("item") ~= "" then
+	local item = meta:get_string("item")
+
+	if item ~= "" then
 
 		if node.name == "itemframes:frame" then
 
@@ -125,7 +133,10 @@ local update_item = function(pos, node)
 		end
 
 		tmp.nodename = node.name
-		tmp.texture = ItemStack(meta:get_string("item")):get_name()
+		tmp.texture = ItemStack(item):get_name()
+
+		local def = core.registered_nodes[item]
+		tmp.glow = def and def.light_source
 
 		local e = minetest.add_entity(pos,"itemframes:item")
 
