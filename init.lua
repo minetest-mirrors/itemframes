@@ -71,12 +71,12 @@ minetest.register_entity("itemframes:item",{
 
 -- helper table
 
-local facedir = {}
-
-facedir[0] = {x = 0, y = 0, z = 1}
-facedir[1] = {x = 1, y = 0, z = 0}
-facedir[2] = {x = 0, y = 0, z = -1}
-facedir[3] = {x = -1, y = 0, z = 0}
+local facedir = {
+	[0] = {x = 0, y = 0, z = 1},
+	[1] = {x = 1, y = 0, z = 0},
+	[2] = {x = 0, y = 0, z = -1},
+	[3] = {x = -1, y = 0, z = 0}
+}
 
 -- remove entities
 
@@ -136,6 +136,7 @@ local update_item = function(pos, node)
 		tmp.texture = ItemStack(item):get_name()
 
 		local def = core.registered_nodes[item]
+
 		tmp.glow = def and def.light_source
 
 		local e = minetest.add_entity(pos,"itemframes:item")
@@ -252,7 +253,7 @@ minetest.register_node("itemframes:frame",{
 		drop_item(pos, "itemframes:frame")
 
 		minetest.remove_node(pos)
-	end,
+	end
 })
 
 minetest.register_craft({
@@ -335,7 +336,7 @@ minetest.register_node("itemframes:pedestal",{
 		minetest.add_item(pos, {name = "itemframes:pedestal"})
 
 		minetest.remove_node(pos)
-	end,
+	end
 })
 
 minetest.register_craft({
