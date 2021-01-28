@@ -135,7 +135,7 @@ local update_item = function(pos, node)
 		tmp.nodename = node.name
 		tmp.texture = ItemStack(item):get_name()
 
-		local def = core.registered_nodes[item]
+		local def = core.registered_items[item]
 
 		tmp.glow = def and def.light_source
 
