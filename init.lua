@@ -281,8 +281,8 @@ minetest.register_node("itemframes:frame_invis",{
 		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
 	},
 	tiles = {"itemframes_clear.png"},
-	inventory_image = "itemframes_frame.png^[colorize:#abababc0",
-	wield_image = "itemframes_frame.png^[colorize:#abababc0",
+	inventory_image = "itemframes_frame_invis.png",
+	wield_image = "itemframes_frame_invis.png",
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
@@ -324,7 +324,7 @@ minetest.register_node("itemframes:frame_invis",{
 	end,
 
 	on_destruct = function(pos)
-		drop_item(pos, "itemframes:frame")
+		drop_item(pos, "itemframes:frame_invis")
 	end,
 
 	on_punch = function(pos, node, puncher)
@@ -333,7 +333,7 @@ minetest.register_node("itemframes:frame_invis",{
 
 	on_blast = function(pos, intensity)
 
-		drop_item(pos, "itemframes:frame")
+		drop_item(pos, "itemframes:frame_invis")
 
 		minetest.add_item(pos, {name = "itemframes:frame"})
 
@@ -342,7 +342,7 @@ minetest.register_node("itemframes:frame_invis",{
 
 	on_burn = function(pos)
 
-		drop_item(pos, "itemframes:frame")
+		drop_item(pos, "itemframes:frame_invis")
 
 		minetest.remove_node(pos)
 	end
