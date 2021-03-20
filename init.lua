@@ -2,7 +2,7 @@
 screwdriver = screwdriver or {}
 
 local tmp = {}
-local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 49
+local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 69
 
 -- item entity
 
@@ -117,7 +117,8 @@ local update_item = function(pos, node)
 
 	if item ~= "" then
 
-		if node.name == "itemframes:frame" then
+		if node.name == "itemframes:frame"
+		or node.name == "itemframes:frame_invis" then
 
 			local posad = facedir[node.param2]
 
@@ -141,7 +142,8 @@ local update_item = function(pos, node)
 
 		local e = minetest.add_entity(pos,"itemframes:item")
 
-		if node.name == "itemframes:frame" then
+		if node.name == "itemframes:frame"
+		or node.name == "itemframes:frame_invis" then
 
 			--local yaw = math.pi * 2 - node.param2 * math.pi / 2
 			local yaw = 6.28 - node.param2 * 1.57
@@ -265,6 +267,96 @@ minetest.register_craft({
 	}
 })
 
+-- invisible itemframe node and recipe
+
+minetest.register_node("itemframes:frame_invis",{
+	description = "Invisible Item frame",
+	drawtype = "nodebox",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+	},
+	tiles = {"itemframes_clear.png"},
+	inventory_image = "itemframes_frame.png^[colorize:#abababc0",
+	wield_image = "itemframes_frame.png^[colorize:#abababc0",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	sunlight_propagates = true,
+	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
+	legacy_wallmounted = true,
+	sounds = default.node_sound_defaults(),
+	on_rotate = screwdriver.disallow,
+
+	after_place_node = function(pos, placer, itemstack)
+
+		local meta = minetest.get_meta(pos)
+
+		meta:set_string("infotext","Item frame (right-click to add or remove item)")
+	end,
+
+	on_rightclick = function(pos, node, clicker, itemstack)
+
+		if not itemstack
+		or minetest.is_protected(pos, clicker:get_player_name()) then
+			return
+		end
+
+		local meta = minetest.get_meta(pos)
+
+		if not meta then return end
+
+		if meta:get_string("item") ~= "" then
+
+			drop_item(pos, node.name, meta)
+		else
+			local s = itemstack:take_item()
+
+			meta:set_string("item", s:to_string())
+
+			update_item(pos, node)
+
+			return itemstack
+		end
+	end,
+
+	on_destruct = function(pos)
+		drop_item(pos, "itemframes:frame")
+	end,
+
+	on_punch = function(pos, node, puncher)
+		update_item(pos, node)
+	end,
+
+	on_blast = function(pos, intensity)
+
+		drop_item(pos, "itemframes:frame")
+
+		minetest.add_item(pos, {name = "itemframes:frame"})
+
+		minetest.remove_node(pos)
+	end,
+
+	on_burn = function(pos)
+
+		drop_item(pos, "itemframes:frame")
+
+		minetest.remove_node(pos)
+	end
+})
+
+minetest.register_craft({
+	output = "itemframes:frame_invis",
+	recipe = {
+		{"default:glass", "default:glass", "default:glass"},
+		{"default:glass", "default:paper", "default:glass"},
+		{"default:glass", "default:glass", "default:glass"},
+	}
+})
+
 -- pedestal node and recipe
 
 minetest.register_node("itemframes:pedestal",{
@@ -352,7 +444,7 @@ minetest.register_craft({
 -- due to /clearobjects or similar
 
 minetest.register_abm({
-	nodenames = {"itemframes:frame", "itemframes:pedestal"},
+	nodenames = {"itemframes:frame", "itemframes:pedestal", "itemframes:frame_invis"},
 	interval = 25,
 	chance = 1,
 	catch_up = false,
@@ -363,21 +455,21 @@ minetest.register_abm({
 			return
 		end
 
-		local num
+		local ypos = 0
 
-		if node.name == "itemframes:frame" then
-			num = #minetest.get_objects_inside_radius(pos, 0.5)
-
-		elseif node.name == "itemframes:pedestal" then
-
-			pos.y = pos.y + 1
-			num = #minetest.get_objects_inside_radius(pos, 0.5)
-			pos.y = pos.y - 1
+		if node.name == "itemframes:pedestal" then
+			ypos = 1
 		end
+
+		pos.y = pos.y + ypos
+
+		local num = #minetest.get_objects_inside_radius(pos, 0.5)
 
 		if num > 0 then
 			return
 		end
+
+		pos.y = pos.y - ypos
 
 		update_item(pos, node)
 	end
@@ -387,5 +479,6 @@ minetest.register_abm({
 
 if minetest.get_modpath("mesecons_mvps") then
 	mesecon.register_mvps_stopper("itemframes:frame")
+	mesecon.register_mvps_stopper("itemframes:frame_invis")
 	mesecon.register_mvps_stopper("itemframes:pedestal")
 end
