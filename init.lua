@@ -2,7 +2,7 @@
 screwdriver = screwdriver or {}
 
 local tmp = {}
-local max_objs = tonumber(minetest.setting_get("max_objects_per_block")) or 69
+local max_objs = tonumber(minetest.settings:get("max_objects_per_block")) or 64
 
 -- item entity
 
@@ -66,16 +66,41 @@ minetest.register_entity("itemframes:item",{
 		end
 
 		return ""
-	end,
+	end
 })
 
 -- helper table
 
 local facedir = {
 	[0] = {x = 0, y = 0, z = 1},
+	[12] = {x = 0, y = 0, z = 1},
+	[16] = {x = 0, y = 0, z = 1},
+	[20] = {x = 0, y = 0, z = 1},
+
 	[1] = {x = 1, y = 0, z = 0},
+	[5] = {x = 1, y = 0, z = 0},
+	[9] = {x = 1, y = 0, z = 0},
+	[23] = {x = 1, y = 0, z = 0},
+
 	[2] = {x = 0, y = 0, z = -1},
-	[3] = {x = -1, y = 0, z = 0}
+	[14] = {x = 0, y = 0, z = -1},
+	[18] = {x = 0, y = 0, z = -1},
+	[22] = {x = 0, y = 0, z = -1},
+
+	[3] = {x = -1, y = 0, z = 0},
+	[7] = {x = -1, y = 0, z = 0},
+	[11] = {x = -1, y = 0, z = 0},
+	[21] = {x = -1, y = 0, z = 0},
+
+	[4] = -0.4, -- flat frames
+	[10] = -0.4,
+	[13] = -0.4,
+	[19] = -0.4,
+
+	[8] = 0.4, -- upside down flat frames
+	[6] = 0.4,
+	[15] = 0.4,
+	[17] = 0.4
 }
 
 -- remove entities
@@ -115,41 +140,52 @@ local update_item = function(pos, node)
 
 	local item = meta:get_string("item")
 
-	if item ~= "" then
+	if item == "" then return end
 
-		if node.name == "itemframes:frame"
-		or node.name == "itemframes:frame_invis" then
+	local pitch = 0
+	local p2 = node.param2
 
-			local posad = facedir[node.param2]
+	if node.name == "itemframes:frame"
+	or node.name == "itemframes:frame_invis" then
 
-			if not posad then return end
+		local posad = facedir[p2]
 
+		if not posad then return end
+
+		if type(posad) == "table" then
 			pos.x = pos.x + posad.x * 6.5 / 16
 			pos.y = pos.y + posad.y * 6.5 / 16
 			pos.z = pos.z + posad.z * 6.5 / 16
-
-		elseif node.name == "itemframes:pedestal" then
-
-			pos.y = pos.y + 12 / 16 + 0.33
+		else
+			pitch = 4.7
+			pos.y = pos.y + posad
 		end
 
-		tmp.nodename = node.name
-		tmp.texture = ItemStack(item):get_name()
+	elseif node.name == "itemframes:pedestal" then
 
-		local def = core.registered_items[item]
+		pos.y = pos.y + 12 / 16 + 0.33
+	end
 
-		tmp.glow = def and def.light_source
+	tmp.nodename = node.name
+	tmp.texture = ItemStack(item):get_name()
 
-		local e = minetest.add_entity(pos,"itemframes:item")
+	local def = core.registered_items[item]
 
-		if node.name == "itemframes:frame"
-		or node.name == "itemframes:frame_invis" then
+	tmp.glow = def and def.light_source
 
-			--local yaw = math.pi * 2 - node.param2 * math.pi / 2
-			local yaw = 6.28 - node.param2 * 1.57
+	local e = minetest.add_entity(pos,"itemframes:item")
 
-			e:set_yaw(yaw)
-		end
+	if node.name == "itemframes:frame"
+	or node.name == "itemframes:frame_invis" then
+
+		--local yaw = math.pi * 2 - node.param2 * math.pi / 2
+		local yaw = 6.28 - p2 * 1.57
+
+		e:set_rotation({
+			x = pitch, -- pitch
+			y = yaw, -- yaw
+			z = 0 -- roll
+		})
 	end
 end
 
@@ -197,9 +233,7 @@ minetest.register_node("itemframes:frame",{
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
-	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
-	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
 
@@ -286,10 +320,9 @@ minetest.register_node("itemframes:frame_invis",{
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
+	use_texture_alpha = "clip",
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
-	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
-	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
 
