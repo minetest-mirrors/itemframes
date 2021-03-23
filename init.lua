@@ -213,6 +213,43 @@ local drop_item = function(pos, nodename, metadata)
 	end
 end
 
+-- on_place helper function
+
+local frame_place = function(itemstack, placer, pointed_thing)
+
+	if pointed_thing.type ~= "node" then return end
+
+	local above = pointed_thing.above
+	local under = pointed_thing.under
+	local dir = {
+		x = under.x - above.x,
+		y = under.y - above.y,
+		z = under.z - above.z
+	}
+
+	local wdir = minetest.dir_to_wallmounted(dir)
+	local placer_pos = placer:get_pos()
+
+	if placer_pos then
+		dir = {
+			x = above.x - placer_pos.x,
+			y = above.y - placer_pos.y,
+			z = above.z - placer_pos.z
+		}
+	end
+
+	local fdir = minetest.dir_to_facedir(dir)
+	local p2 = fdir
+
+	if wdir == 0 then
+		p2 = 8
+	elseif wdir == 1 then
+		p2 = 4
+	end
+
+	return minetest.item_place(itemstack, placer, pointed_thing, p2)
+end
+
 -- itemframe node and recipe
 
 minetest.register_node("itemframes:frame",{
@@ -234,6 +271,8 @@ minetest.register_node("itemframes:frame",{
 	sunlight_propagates = true,
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
 	sounds = default.node_sound_defaults(),
+
+	on_place = frame_place,
 
 	after_place_node = function(pos, placer, itemstack)
 
@@ -323,6 +362,8 @@ minetest.register_node("itemframes:frame_invis",{
 	use_texture_alpha = "clip",
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
 	sounds = default.node_sound_defaults(),
+
+	on_place = frame_place,
 
 	after_place_node = function(pos, placer, itemstack)
 
