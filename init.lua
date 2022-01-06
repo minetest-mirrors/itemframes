@@ -3,6 +3,7 @@ screwdriver = screwdriver or {}
 
 local tmp = {}
 local max_objs = tonumber(minetest.settings:get("max_objects_per_block")) or 64
+local should_return_item = minetest.settings:get_bool("itemframes.return_item", false)
 
 -- item entity
 
@@ -213,6 +214,50 @@ local drop_item = function(pos, nodename, metadata)
 	end
 end
 
+-- return item to a player's inventory
+
+local return_item = function(pos, nodename, metadata, clicker, itemstack)
+
+	local meta = metadata or minetest.get_meta(pos)
+
+	if not meta then return end
+
+	local item = meta:get_string("item")
+
+	if item == "" then return end
+
+	local remaining = itemstack:add_item(item)
+
+	if remaining:is_empty() then
+
+		meta:set_string("item", "")
+
+		remove_item(pos, nodename)
+
+		return itemstack
+	end
+
+	local inv = clicker:get_inventory()
+
+	if not inv then
+
+		drop_item(pos, nodename, metadata)
+
+		return
+	end
+
+	remaining = inv:add_item("main", remaining)
+
+	if remaining:is_empty() then
+
+		meta:set_string("item", "")
+
+		remove_item(pos, nodename)
+	else
+		drop_item(pos, nodename, metadata)
+	end
+end
+
 -- on_place helper function
 
 local frame_place = function(itemstack, placer, pointed_thing)
@@ -294,7 +339,11 @@ minetest.register_node("itemframes:frame",{
 
 		if meta:get_string("item") ~= "" then
 
-			drop_item(pos, node.name, meta)
+			if should_return_item then
+				return return_item(pos, node.name, meta, clicker, itemstack)
+			else
+				drop_item(pos, node.name, meta)
+			end
 		else
 			local s = itemstack:take_item()
 
@@ -336,7 +385,7 @@ minetest.register_craft({
 	recipe = {
 		{"default:stick", "default:stick", "default:stick"},
 		{"default:stick", "default:paper", "default:stick"},
-		{"default:stick", "default:stick", "default:stick"},
+		{"default:stick", "default:stick", "default:stick"}
 	}
 })
 
@@ -385,7 +434,11 @@ minetest.register_node("itemframes:frame_invis",{
 
 		if meta:get_string("item") ~= "" then
 
-			drop_item(pos, node.name, meta)
+			if should_return_item then
+				return return_item(pos, node.name, meta, clicker, itemstack)
+			else
+				drop_item(pos, node.name, meta)
+			end
 		else
 			local s = itemstack:take_item()
 
@@ -427,7 +480,7 @@ minetest.register_craft({
 	recipe = {
 		{"default:glass", "default:glass", "default:glass"},
 		{"default:glass", "default:paper", "default:glass"},
-		{"default:glass", "default:glass", "default:glass"},
+		{"default:glass", "default:glass", "default:glass"}
 	}
 })
 
@@ -474,7 +527,11 @@ minetest.register_node("itemframes:pedestal",{
 
 		if meta:get_string("item") ~= "" then
 
-			drop_item(pos, node.name, meta)
+			if should_return_item then
+				return return_item(pos, node.name, meta, clicker, itemstack)
+			else
+				drop_item(pos, node.name, meta)
+			end
 		else
 
 			local s = itemstack:take_item()
@@ -510,7 +567,7 @@ minetest.register_craft({
 	recipe = {
 		{"default:stone", "default:stone", "default:stone"},
 		{"", "default:stone", ""},
-		{"default:stone", "default:stone", "default:stone"},
+		{"default:stone", "default:stone", "default:stone"}
 	}
 })
 
