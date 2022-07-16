@@ -2,7 +2,6 @@
 screwdriver = screwdriver or {}
 
 local tmp = {}
-local max_objs = tonumber(minetest.settings:get("max_objects_per_block")) or 64
 local should_return_item = minetest.settings:get_bool("itemframes.return_item", false)
 
 -- item entity
@@ -14,13 +13,9 @@ minetest.register_entity("itemframes:item",{
 	collisionbox = {0, 0, 0, 0, 0, 0},
 	physical = false,
 	textures = {"air"},
+	static_save = false,
 
 	on_activate = function(self, staticdata)
-
-		if not self then
-			self.object:remove()
-			return
-		end
 
 		if tmp.nodename ~= nil
 		and tmp.texture ~= nil then
@@ -574,17 +569,13 @@ minetest.register_craft({
 -- automatically restore entities lost from frames/pedestals
 -- due to /clearobjects or similar
 
-minetest.register_abm({
+minetest.register_lbm({
+	label = "Restore itemframe entities",
+	name = "itemframes:restore_entities",
 	nodenames = {"itemframes:frame", "itemframes:pedestal", "itemframes:frame_invis"},
-	interval = 25,
-	chance = 1,
-	catch_up = false,
+	run_at_every_load = true,
 
-	action = function(pos, node, active_object_count, active_object_count_wider)
-
-		if active_object_count >= max_objs then
-			return
-		end
+	action = function(pos, node)
 
 		local ypos = 0
 
@@ -594,10 +585,15 @@ minetest.register_abm({
 
 		pos.y = pos.y + ypos
 
-		local num = #minetest.get_objects_inside_radius(pos, 0.5)
+		local objs = minetest.get_objects_inside_radius(pos, 0.5)
 
-		if num > 0 then
-			return
+		for _, obj in ipairs(objs) do
+
+			local e = obj:get_luaentity()
+
+			if e and e.name == "itemframes:item" then
+				return
+			end
 		end
 
 		pos.y = pos.y - ypos
