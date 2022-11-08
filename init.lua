@@ -338,17 +338,26 @@ minetest.register_node("itemframes:frame",{
 
 		if meta:get_string("item") ~= "" then
 
+			minetest.log("action", clicker:get_player_name()
+				.. " removed " .. meta:get_string("item")
+				.. " from Itemframe at " .. minetest.pos_to_string(pos))
+
 			if should_return_item then
 				return return_item(pos, node.name, meta, clicker, itemstack)
 			else
 				drop_item(pos, node.name, meta)
 			end
+
 		else
 			local s = itemstack:take_item()
 
 			meta:set_string("item", s:to_string())
 
 			update_item(pos, node)
+
+			minetest.log("action", clicker:get_player_name()
+				.. " inserted " .. meta:get_string("item")
+				.. " into Itemframe at " .. minetest.pos_to_string(pos))
 
 			return itemstack
 		end
@@ -433,6 +442,10 @@ minetest.register_node("itemframes:frame_invis",{
 
 		if meta:get_string("item") ~= "" then
 
+			minetest.log("action", clicker:get_player_name()
+				.. " removed " .. meta:get_string("item")
+				.. " from Itemframe at " .. minetest.pos_to_string(pos))
+
 			if should_return_item then
 				return return_item(pos, node.name, meta, clicker, itemstack)
 			else
@@ -444,6 +457,10 @@ minetest.register_node("itemframes:frame_invis",{
 			meta:set_string("item", s:to_string())
 
 			update_item(pos, node)
+
+			minetest.log("action", clicker:get_player_name()
+				.. " inserted " .. meta:get_string("item")
+				.. " into Itemframe at " .. minetest.pos_to_string(pos))
 
 			return itemstack
 		end
@@ -526,6 +543,10 @@ minetest.register_node("itemframes:pedestal",{
 
 		if meta:get_string("item") ~= "" then
 
+			minetest.log("action", clicker:get_player_name()
+				.. " removed " .. meta:get_string("item")
+				.. " from Pedestal at " .. minetest.pos_to_string(pos))
+
 			if should_return_item then
 				return return_item(pos, node.name, meta, clicker, itemstack)
 			else
@@ -538,6 +559,10 @@ minetest.register_node("itemframes:pedestal",{
 			meta:set_string("item", s:to_string())
 
 			update_item(pos, node)
+
+			minetest.log("action", clicker:get_player_name()
+				.. " inserted " .. meta:get_string("item")
+				.. " into Pedestal at " .. minetest.pos_to_string(pos))
 
 			return itemstack
 		end
