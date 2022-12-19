@@ -641,3 +641,6 @@ if minetest.get_modpath("mesecons_mvps") then
 	mesecon.register_mvps_stopper("itemframes:frame_invis")
 	mesecon.register_mvps_stopper("itemframes:pedestal")
 end
+
+
+print("[MOD] Itemframes loaded")
