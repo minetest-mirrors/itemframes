@@ -518,7 +518,11 @@ minetest.register_node("itemframes:pedestal",{
 		type = "fixed",
 		fixed = {-7/16, -0.5, -7/16, 7/16, 12/16, 7/16}
 	},
-	tiles = {"itemframes_pedestal.png"},
+	tiles = {
+		"itemframes_pedestal_top.png",
+		"itemframes_pedestal_btm.png",
+		"itemframes_pedestal.png"
+	},
 	paramtype = "light",
 	groups = {cracky = 3},
 	sounds = default.node_sound_defaults(),
