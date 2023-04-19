@@ -583,11 +583,13 @@ minetest.register_node("itemframes:pedestal",{
 
 	on_blast = function(pos, intensity)
 
+		local pos2 = {x = pos.x, y = pos.y, z = pos.z}
+
 		drop_item(pos, "pedestal")
 
-		minetest.add_item(pos, {name = "itemframes:pedestal"})
+		minetest.add_item(pos2, {name = "itemframes:pedestal"})
 
-		minetest.remove_node(pos)
+		minetest.remove_node(pos2)
 	end
 })
 
