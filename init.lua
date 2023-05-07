@@ -67,35 +67,35 @@ minetest.register_entity("itemframes:item", {
 -- helper table
 
 local facedir = {
-	[0] = {x = 0, y = 0, z = 1},
-	[12] = {x = 0, y = 0, z = 1},
-	[16] = {x = 0, y = 0, z = 1},
-	[20] = {x = 0, y = 0, z = 1},
+	[0] = {x = 0, y = 0, z = 1, pitch = 0, yaw = 0, roll = 0, nx = 12},
+	[12] = {x = 0, y = 0, z = 1, pitch = 0, yaw = 0, roll = 3, nx = 16},
+	[16] = {x = 0, y = 0, z = 1, pitch = 0, yaw = 0, roll = 1, nx = 20},
+	[20] = {x = 0, y = 0, z = 1, pitch = 0, yaw = 0, roll = 2, nx = 0},
 
-	[1] = {x = 1, y = 0, z = 0},
-	[5] = {x = 1, y = 0, z = 0},
-	[9] = {x = 1, y = 0, z = 0},
-	[23] = {x = 1, y = 0, z = 0},
+	[1] = {x = 1, y = 0, z = 0, pitch = 0, yaw = 1, roll = 0, nx = 5},
+	[5] = {x = 1, y = 0, z = 0, pitch = 0, yaw = 1, roll = 1, nx = 9},
+	[9] = {x = 1, y = 0, z = 0, pitch = 0, yaw = 1, roll = 3, nx = 23},
+	[23] = {x = 1, y = 0, z = 0, pitch = 0, yaw = 1, roll = 2, nx = 1},
 
-	[2] = {x = 0, y = 0, z = -1},
-	[14] = {x = 0, y = 0, z = -1},
-	[18] = {x = 0, y = 0, z = -1},
-	[22] = {x = 0, y = 0, z = -1},
+	[2] = {x = 0, y = 0, z = -1, pitch = 0, yaw = 2, roll = 0, nx = 14},
+	[14] = {x = 0, y = 0, z = -1, pitch = 0, yaw = 2, roll = 1, nx = 18},
+	[18] = {x = 0, y = 0, z = -1, pitch = 0, yaw = 2, roll = 3, nx = 22},
+	[22] = {x = 0, y = 0, z = -1, pitch = 0, yaw = 2, roll = 2, nx = 2},
 
-	[3] = {x = -1, y = 0, z = 0},
-	[7] = {x = -1, y = 0, z = 0},
-	[11] = {x = -1, y = 0, z = 0},
-	[21] = {x = -1, y = 0, z = 0},
+	[3] = {x = -1, y = 0, z = 0, pitch = 0, yaw = 3, roll = 0, nx = 7},
+	[7] = {x = -1, y = 0, z = 0, pitch = 0, yaw = 3, roll = 3, nx = 11},
+	[11] = {x = -1, y = 0, z = 0, pitch = 0, yaw = 3, roll = 1, nx = 21},
+	[21] = {x = -1, y = 0, z = 0, pitch = 0, yaw = 3, roll = 2, nx = 3},
 
-	[4] = -0.4, -- flat frames
-	[10] = -0.4,
-	[13] = -0.4,
-	[19] = -0.4,
+	[4] = {x = 0, y = -1, z = 0, pitch = -4.7, yaw = 0, roll = 0, nx = 10},
+	[10] = {x = 0, y = -1, z = 0, pitch = -4.7, yaw = 2, roll = 0, nx = 13},
+	[13] = {x = 0, y = -1, z = 0, pitch = -4.7, yaw = 1, roll = 0, nx = 19},
+	[19] = {x = 0, y = -1, z = 0, pitch = -4.7, yaw = 3, roll = 0, nx = 4},
 
-	[8] = 0.4, -- upside down flat frames
-	[6] = 0.4,
-	[15] = 0.4,
-	[17] = 0.4
+	[8] = {x = 0, y = 1, z = 0, pitch = -4.7, yaw = 0, roll = 0, nx = 6},
+	[6] = {x = 0, y = 1, z = 0, pitch = -4.7, yaw = 2, roll = 0, nx = 15},
+	[15] = {x = 0, y = 1, z = 0, pitch = -4.7, yaw = 3, roll = 0, nx = 17},
+	[17] = {x = 0, y = 1, z = 0, pitch = -4.7, yaw = 1, roll = 0, nx = 8},
 }
 
 -- remove entities
@@ -138,22 +138,24 @@ local update_item = function(pos, ntype, node)
 	if item == "" then return end
 
 	local pitch = 0
-	local p2 = node.param2
+	local yaw = 0
+	local roll = 0
 
 	if ntype == "frame" then
 
-		local posad = facedir[p2]
+		local p2 = node.param2
+		local adjust = facedir[p2]
 
-		if not posad then return end
+		if not adjust then return end
 
-		if type(posad) == "table" then
-			pos.x = pos.x + posad.x * 6.5 / 16
-			pos.y = pos.y + posad.y * 6.5 / 16
-			pos.z = pos.z + posad.z * 6.5 / 16
-		else
-			pitch = 4.7
-			pos.y = pos.y + posad
-		end
+		pos.x = pos.x + adjust.x * 6.5 / 16
+		pos.y = pos.y + adjust.y * 6.5 / 16
+		pos.z = pos.z + adjust.z * 6.5 / 16
+		pitch = adjust.pitch
+		--local yaw = math.pi * 2 - adjust.yaw * math.pi / 2
+		yaw = 6.28 - adjust.yaw * 1.57
+		--local roll = math.pi * 2 - adjust.roll * math.pi / 2
+		roll = 6.28 - adjust.roll * 1.57
 
 	elseif ntype == "pedestal" then
 
@@ -171,13 +173,10 @@ local update_item = function(pos, ntype, node)
 
 	if ntype == "frame" then
 
-		--local yaw = math.pi * 2 - node.param2 * math.pi / 2
-		local yaw = 6.28 - p2 * 1.57
-
 		e:set_rotation({
 			x = pitch, -- pitch
 			y = yaw, -- yaw
-			z = 0 -- roll
+			z = roll -- roll
 		})
 	end
 end
@@ -369,6 +368,17 @@ minetest.register_node("itemframes:frame",{
 	end,
 
 	on_punch = function(pos, node, puncher)
+
+		-- rotate item inside frame when holding sneak and punching
+		if puncher and puncher:get_player_control().sneak then
+
+			local p2 = node.param2
+			local nx = facedir[p2].nx
+
+			minetest.swap_node(pos, {name = node.name, param2 = nx})
+			node.param2 = nx
+		end
+
 		update_item(pos, "frame", node)
 	end,
 
@@ -472,6 +482,17 @@ minetest.register_node("itemframes:frame_invis",{
 	end,
 
 	on_punch = function(pos, node, puncher)
+
+		-- rotate item inside frame when holding sneak and punching
+		if puncher and puncher:get_player_control().sneak then
+
+			local p2 = node.param2
+			local nx = facedir[p2].nx
+
+			minetest.swap_node(pos, {name = node.name, param2 = nx})
+			node.param2 = nx
+		end
+
 		update_item(pos, "frame", node)
 	end,
 
