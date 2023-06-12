@@ -38,7 +38,20 @@ minetest.register_entity("itemframes:item", {
 		end
 
 		if self.texture then
-			self.object:set_properties({textures = {self.texture}})
+
+			local def = minetest.registered_items[self.texture]
+
+			if def and def._itemframe_texture
+			and self.nodename ~= "itemframes:pedestal" then
+
+				self.object:set_properties({
+					textures = {def._itemframe_texture},
+					visual = "upright_sprite",
+					visual_size = {x = 0.6, y = 0.6}
+				})
+			else
+				self.object:set_properties({textures = {self.texture}})
+			end
 		end
 
 		if self.nodename == "itemframes:pedestal" then
