@@ -4,6 +4,7 @@ screwdriver = screwdriver or {}
 local tmp = {}
 local should_return_item = minetest.settings:get_bool("itemframes.return_item", false)
 local log_actions = minetest.settings:get_bool("itemframes.log_actions", false)
+local allow_rotate = minetest.settings:get_bool("itemframes.allow_rotate", false)
 
 -- item entity
 
@@ -383,7 +384,8 @@ minetest.register_node("itemframes:frame",{
 	on_punch = function(pos, node, puncher)
 
 		-- rotate item inside frame when holding sneak and punching
-		if puncher and puncher:get_player_control().sneak then
+		if puncher and puncher:get_player_control().sneak
+		and (allow_rotate or not minetest.is_protected(pos, puncher:get_player_name())) then
 
 			local p2 = node.param2
 			local nx = facedir[p2].nx
@@ -497,7 +499,8 @@ minetest.register_node("itemframes:frame_invis",{
 	on_punch = function(pos, node, puncher)
 
 		-- rotate item inside frame when holding sneak and punching
-		if puncher and puncher:get_player_control().sneak then
+		if puncher and puncher:get_player_control().sneak
+		and (allow_rotate or not minetest.is_protected(pos, puncher:get_player_name())) then
 
 			local p2 = node.param2
 			local nx = facedir[p2].nx

@@ -16,6 +16,8 @@ Change 'itemframes.return_item' setting to true if you want items to drop back i
 
 Change 'itemframes.log_actions' setting to true if you want to log player actions when inserting or removing items from a frame or pedestal.
 
+Itemframe items can be rotated by holding sneak and punching frame, but in a protected area this is limited to the owner unless "itemframes.allow_rotate" setting is true.
+
 
 Texture Override
 ----------------
