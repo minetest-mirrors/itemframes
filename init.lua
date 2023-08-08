@@ -6,6 +6,20 @@ local should_return_item = minetest.settings:get_bool("itemframes.return_item", 
 local log_actions = minetest.settings:get_bool("itemframes.log_actions", false)
 local allow_rotate = minetest.settings:get_bool("itemframes.allow_rotate", false)
 
+-- translation support
+
+local S
+if minetest.get_translator then
+	S = minetest.get_translator("itemframes") -- 5.x translation function
+else -- boilerplate function
+	S = function(str, ...)
+		local args = {...}
+		return str:gsub("@%d+", function(match)
+			return args[tonumber(match:sub(2))]
+		end)
+	end
+end
+
 -- item entity
 
 minetest.register_entity("itemframes:item", {
@@ -311,7 +325,7 @@ end
 -- itemframe node and recipe
 
 minetest.register_node("itemframes:frame",{
-	description = "Item frame",
+	description = S("Item frame"),
 	drawtype = "nodebox",
 	node_box = {
 		type = "fixed",
@@ -336,7 +350,7 @@ minetest.register_node("itemframes:frame",{
 
 		local meta = minetest.get_meta(pos)
 
-		meta:set_string("infotext","Item frame (right-click to add or remove item)")
+		meta:set_string("infotext", S("Right-click to add or remove item"))
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
@@ -426,7 +440,7 @@ minetest.register_craft({
 -- invisible itemframe node and recipe
 
 minetest.register_node("itemframes:frame_invis",{
-	description = "Invisible Item frame",
+	description = S("Invisible Item frame"),
 	drawtype = "nodebox",
 	node_box = {
 		type = "fixed",
@@ -452,7 +466,7 @@ minetest.register_node("itemframes:frame_invis",{
 
 		local meta = minetest.get_meta(pos)
 
-		meta:set_string("infotext","Item frame (right-click to add or remove item)")
+		meta:set_string("infotext", S("Right-click to add or remove item"))
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
@@ -541,7 +555,7 @@ minetest.register_craft({
 -- pedestal node and recipe
 
 minetest.register_node("itemframes:pedestal",{
-	description = "Pedestal",
+	description = S("Pedestal"),
 	drawtype = "nodebox",
 	node_box = {
 		type = "fixed", fixed = {
@@ -569,7 +583,7 @@ minetest.register_node("itemframes:pedestal",{
 
 		local meta = minetest.get_meta(pos)
 
-		meta:set_string("infotext","Pedestal (right-click to add or remove item)")
+		meta:set_string("infotext", S("Right-click to add or remove item"))
 	end,
 
 	on_rightclick = function(pos, node, clicker, itemstack)
