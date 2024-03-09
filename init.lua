@@ -20,8 +20,7 @@ minetest.register_entity("itemframes:item", {
 		visual_size = {x = 0.33, y = 0.33},
 		collisionbox = {0, 0, 0, 0, 0, 0},
 		physical = false,
-		textures = {"air"},
-		static_save = false
+		textures = {"air"}
 	},
 
 	on_activate = function(self, staticdata)
@@ -158,9 +157,7 @@ local update_item = function(pos, ntype, node)
 
 	if item == "" then return end
 
-	local pitch = 0
-	local yaw = 0
-	local roll = 0
+	local pitch, yaw, roll = 0, 0, 0
 
 	if ntype == "frame" then
 
@@ -169,18 +166,23 @@ local update_item = function(pos, ntype, node)
 
 		if not adjust then return end
 
-		pos.x = pos.x + adjust.x * 6.5 / 16
-		pos.y = pos.y + adjust.y * 6.5 / 16
-		pos.z = pos.z + adjust.z * 6.5 / 16
+		local raise = 6.5 / 16 -- itemframe default
+
+		if node and node.name == "itemframes:frame_invis" then
+			raise = 6.5 / 14 -- stops floating effect
+		end
+
+		pos.x = pos.x + adjust.x * raise
+		pos.y = pos.y + adjust.y * raise
+		pos.z = pos.z + adjust.z * raise
+
 		pitch = adjust.pitch
-		--local yaw = math.pi * 2 - adjust.yaw * math.pi / 2
-		yaw = 6.28 - adjust.yaw * 1.57
-		--local roll = math.pi * 2 - adjust.roll * math.pi / 2
+		yaw = 6.28 - adjust.yaw * 1.57 -- math.pi/2
 		roll = 6.28 - adjust.roll * 1.57
 
 	elseif ntype == "pedestal" then
 
-		pos.y = pos.y + 12 / 16 + 0.33
+		pos.y = pos.y + 1.08
 	end
 
 	tmp.nodename = node.name
@@ -194,11 +196,7 @@ local update_item = function(pos, ntype, node)
 
 	if ntype == "frame" then
 
-		e:set_rotation({
-			x = pitch, -- pitch
-			y = yaw, -- yaw
-			z = roll -- roll
-		})
+		e:set_rotation({x = pitch, y = yaw, z = roll})
 	end
 end
 
@@ -694,3 +692,4 @@ end
 
 
 print("[MOD] Itemframes loaded")
+
