@@ -25,6 +25,32 @@ minetest.register_entity("itemframes:item", {
 
 	on_activate = function(self, staticdata)
 
+		local pos = self.object:get_pos() ; if not pos then return end
+		local objs = minetest.get_objects_inside_radius(pos, 0.5)
+		local found_any = false
+
+		for _, obj in ipairs(objs) do
+
+			if obj ~= self.object then
+
+				local e = obj:get_luaentity()
+
+				if e and e.name == "itemframes:item" then
+
+					if found_any then
+						obj:remove() -- remove duplicates
+					else
+						found_any = true
+					end
+				end
+			end
+		end
+
+		if found_any then
+			self.object:remove()
+			return
+		end
+
 		if tmp.nodename and tmp.texture then
 
 			self.nodename = tmp.nodename ; 	tmp.nodename = nil
@@ -666,15 +692,23 @@ minetest.register_lbm({
 		pos.y = pos.y + ypos
 
 		local objs = minetest.get_objects_inside_radius(pos, 0.5)
+		local found_any = false
 
 		for _, obj in ipairs(objs) do
 
 			local e = obj:get_luaentity()
 
 			if e and e.name == "itemframes:item" then
-				return
+
+				if found_any then
+					obj:remove() -- remove duplicates
+				else
+					found_any = true
+				end
 			end
 		end
+
+		if found_any then return end
 
 		pos.y = pos.y - ypos
 
