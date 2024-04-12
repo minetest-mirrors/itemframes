@@ -220,7 +220,7 @@ local update_item = function(pos, ntype, node)
 
 	local e = minetest.add_entity(pos, "itemframes:item")
 
-	if ntype == "frame" then
+	if e and ntype == "frame" then
 
 		e:set_rotation({x = pitch, y = yaw, z = roll})
 	end
