@@ -1,6 +1,4 @@
-
-screwdriver = screwdriver or {}
-
+local screwdriver = screwdriver or {}
 local tmp = {}
 local should_return_item = minetest.settings:get_bool("itemframes.return_item", false)
 local log_actions = minetest.settings:get_bool("itemframes.log_actions", false)
@@ -220,7 +218,14 @@ local update_item = function(pos, ntype, node)
 
 	local e = minetest.add_entity(pos, "itemframes:item")
 
-	if e and ntype == "frame" then
+	if not e then
+		tmp.nodename = nil
+		tmp.texture = nil
+		tmp.glow = nil
+		return
+	end
+
+	if ntype == "frame" then
 
 		e:set_rotation({x = pitch, y = yaw, z = roll})
 	end
@@ -726,4 +731,3 @@ end
 
 
 print("[MOD] Itemframes loaded")
-
