@@ -4,6 +4,23 @@ local should_return_item = minetest.settings:get_bool("itemframes.return_item", 
 local log_actions = minetest.settings:get_bool("itemframes.log_actions", false)
 local allow_rotate = minetest.settings:get_bool("itemframes.allow_rotate", false)
 
+-- voxelibre/mineclonia support
+local mcl = minetest.get_modpath("mcl_sounds")
+local a = {
+	paper = mcl and "mcl_core:paper" or "default:paper",
+	glass = mcl and "mcl_core:glass" or "default:glass",
+	stick = "group:stick",
+	stone = "group:stone"
+}
+
+local sounds = nil
+
+if minetest.get_modpath("default") then
+	sounds = default.node_sound_defaults()
+elseif mcl then
+	sounds = mcl_sounds.node_sound_defaults()
+end
+
 -- translation support
 
 local S = minetest.get_translator("itemframes")
@@ -364,7 +381,7 @@ minetest.register_node("itemframes:frame",{
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
-	sounds = default.node_sound_defaults(),
+	sounds = sounds,
 
 	on_place = frame_place,
 
@@ -453,9 +470,9 @@ minetest.register_node("itemframes:frame",{
 minetest.register_craft({
 	output = "itemframes:frame",
 	recipe = {
-		{"default:stick", "default:stick", "default:stick"},
-		{"default:stick", "default:paper", "default:stick"},
-		{"default:stick", "default:stick", "default:stick"}
+		{ a.stick, a.stick, a.stick },
+		{ a.stick, a.paper, a.stick },
+		{ a.stick, a.stick, a.stick }
 	}
 })
 
@@ -480,7 +497,7 @@ minetest.register_node("itemframes:frame_invis",{
 	sunlight_propagates = true,
 	use_texture_alpha = "clip",
 	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
-	sounds = default.node_sound_defaults(),
+	sounds = sounds,
 
 	on_place = frame_place,
 
@@ -568,9 +585,9 @@ minetest.register_node("itemframes:frame_invis",{
 minetest.register_craft({
 	output = "itemframes:frame_invis",
 	recipe = {
-		{"default:glass", "default:glass", "default:glass"},
-		{"default:glass", "default:paper", "default:glass"},
-		{"default:glass", "default:glass", "default:glass"}
+		{ a.glass, a.glass, a.glass },
+		{ a.glass, a.paper, a.glass },
+		{ a.glass, a.glass, a.glass }
 	}
 })
 
@@ -598,7 +615,7 @@ minetest.register_node("itemframes:pedestal",{
 	},
 	paramtype = "light",
 	groups = {cracky = 3},
-	sounds = default.node_sound_defaults(),
+	sounds = sounds,
 	on_rotate = screwdriver.disallow,
 
 	after_place_node = function(pos, placer, itemstack)
@@ -669,9 +686,9 @@ minetest.register_node("itemframes:pedestal",{
 minetest.register_craft({
 	output = "itemframes:pedestal",
 	recipe = {
-		{"default:stone", "default:stone", "default:stone"},
-		{"", "default:stone", ""},
-		{"default:stone", "default:stone", "default:stone"}
+		{ a.stone, a.stone, a.stone },
+		{ "", a.stone, "" },
+		{ a.stone, a.stone, a.stone }
 	}
 })
 
