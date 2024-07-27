@@ -42,7 +42,7 @@ minetest.register_entity("itemframes:item", {
 
 		local pos = self.object:get_pos() ; if not pos then return end
 		local objs = minetest.get_objects_inside_radius(pos, 0.5)
-		local found_any = false
+--		local found_any = false
 
 		for _, obj in ipairs(objs) do
 
@@ -52,19 +52,19 @@ minetest.register_entity("itemframes:item", {
 
 				if e and e.name == "itemframes:item" then
 
-					if found_any then
+--					if found_any then
 						obj:remove() -- remove duplicates
-					else
-						found_any = true
-					end
+--					else
+--						found_any = true
+--					end
 				end
 			end
 		end
 
-		if found_any then
-			self.object:remove()
-			return
-		end
+--		if found_any then
+--			self.object:remove()
+--			return
+--		end
 
 		if tmp.nodename and tmp.texture then
 
@@ -714,7 +714,7 @@ minetest.register_lbm({
 		pos.y = pos.y + ypos
 
 		local objs = minetest.get_objects_inside_radius(pos, 0.5)
-		local found_any = false
+--		local found_any = false
 
 		for _, obj in ipairs(objs) do
 
@@ -722,15 +722,15 @@ minetest.register_lbm({
 
 			if e and e.name == "itemframes:item" then
 
-				if found_any then
+--				if found_any then
 					obj:remove() -- remove duplicates
-				else
-					found_any = true
-				end
+--				else
+--					found_any = true
+--				end
 			end
 		end
 
-		if found_any then return end
+--		if found_any then return end
 
 		pos.y = pos.y - ypos
 
