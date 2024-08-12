@@ -380,8 +380,9 @@ minetest.register_node("itemframes:frame",{
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
-	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
+	groups = {choppy = 2, dig_immediate = 2, flammable = 2, handy = 1, axey = 1},
 	sounds = sounds,
+	_mcl_hardness = 0.5,
 
 	on_place = frame_place,
 
@@ -496,8 +497,9 @@ minetest.register_node("itemframes:frame_invis",{
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
 	use_texture_alpha = "clip",
-	groups = {choppy = 2, dig_immediate = 2, flammable = 2},
+	groups = {choppy = 2, dig_immediate = 2, flammable = 2, handy = 1, axey = 1},
 	sounds = sounds,
+	_mcl_hardness = 0.5,
 
 	on_place = frame_place,
 
@@ -614,9 +616,10 @@ minetest.register_node("itemframes:pedestal",{
 		"itemframes_pedestal.png"
 	},
 	paramtype = "light",
-	groups = {cracky = 3},
+	groups = {cracky = 3, pickaxey = 1},
 	sounds = sounds,
 	on_rotate = screwdriver.disallow,
+	_mcl_hardness = 1.5,
 
 	after_place_node = function(pos, placer, itemstack)
 
