@@ -1,3 +1,6 @@
+
+-- rotation and settings
+
 local screwdriver = screwdriver or {}
 local tmp = {}
 local should_return_item = minetest.settings:get_bool("itemframes.return_item", false)
@@ -5,12 +8,12 @@ local log_actions = minetest.settings:get_bool("itemframes.log_actions", false)
 local allow_rotate = minetest.settings:get_bool("itemframes.allow_rotate", false)
 
 -- voxelibre/mineclonia support
+
 local mcl = minetest.get_modpath("mcl_sounds")
 local a = {
 	paper = mcl and "mcl_core:paper" or "default:paper",
 	glass = mcl and "mcl_core:glass" or "default:glass",
-	stick = "group:stick",
-	stone = "group:stone"
+	stick = "group:stick", stone = "group:stone"
 }
 
 local sounds = nil
@@ -42,7 +45,6 @@ minetest.register_entity("itemframes:item", {
 
 		local pos = self.object:get_pos() ; if not pos then return end
 		local objs = minetest.get_objects_inside_radius(pos, 0.5)
---		local found_any = false
 
 		for _, obj in ipairs(objs) do
 
@@ -51,20 +53,10 @@ minetest.register_entity("itemframes:item", {
 				local e = obj:get_luaentity()
 
 				if e and e.name == "itemframes:item" then
-
---					if found_any then
-						obj:remove() -- remove duplicates
---					else
---						found_any = true
---					end
+					obj:remove()
 				end
 			end
 		end
-
---		if found_any then
---			self.object:remove()
---			return
---		end
 
 		if tmp.nodename and tmp.texture then
 
@@ -161,7 +153,7 @@ local facedir = {
 
 -- remove entities
 
-local remove_item = function(pos, ntype)
+local function remove_item(pos, ntype)
 
 	local ypos = 0
 
@@ -169,8 +161,8 @@ local remove_item = function(pos, ntype)
 		ypos = 1
 	end
 
-	local objs = minetest.get_objects_inside_radius({
-			x = pos.x, y = pos.y + ypos, z = pos.z}, 0.5)
+	local objs = minetest.get_objects_inside_radius(
+			{x = pos.x, y = pos.y + ypos, z = pos.z}, 0.5)
 
 	if objs then
 
@@ -186,26 +178,20 @@ end
 
 -- update entity
 
-local update_item = function(pos, ntype, node)
+local function update_item(pos, ntype, node)
 
 	remove_item(pos, ntype)
 
-	local meta = minetest.get_meta(pos)
+	local meta = minetest.get_meta(pos) ; if not meta then return end
 
-	if not meta then return end
-
-	local item = meta:get_string("item")
-
-	if item == "" then return end
+	local item = meta:get_string("item") ; if item == "" then return end
 
 	local pitch, yaw, roll = 0, 0, 0
 
 	if ntype == "frame" then
 
 		local p2 = node.param2
-		local adjust = facedir[p2]
-
-		if not adjust then return end
+		local adjust = facedir[p2] ; if not adjust then return end
 
 		local raise = 6.5 / 16 -- itemframe default
 
@@ -233,6 +219,10 @@ local update_item = function(pos, ntype, node)
 
 	tmp.glow = def and def.light_source
 
+	local desc = def.description or ""
+
+	meta:set_string("infotext", S("Contains: ") .. desc)
+
 	local e = minetest.add_entity(pos, "itemframes:item")
 
 	if not e then
@@ -243,18 +233,15 @@ local update_item = function(pos, ntype, node)
 	end
 
 	if ntype == "frame" then
-
 		e:set_rotation({x = pitch, y = yaw, z = roll})
 	end
 end
 
 -- remove entity and drop as item
 
-local drop_item = function(pos, ntype, metadata)
+local function drop_item(pos, ntype, metadata)
 
-	local meta = metadata or minetest.get_meta(pos)
-
-	if not meta then return end
+	local meta = metadata or minetest.get_meta(pos) ; if not meta then return end
 
 	local item = meta:get_string("item")
 
@@ -264,9 +251,9 @@ local drop_item = function(pos, ntype, metadata)
 
 		remove_item(pos, ntype)
 
-		if ntype == "pedestal" then
-			pos.y = pos.y + 1
-		end
+		meta:set_string("infotext", S("Right-click to add or remove item"))
+
+		if ntype == "pedestal" then pos.y = pos.y + 1 end
 
 		minetest.add_item(pos, item)
 	end
@@ -274,15 +261,11 @@ end
 
 -- return item to a player's inventory
 
-local return_item = function(pos, ntype, metadata, clicker, itemstack)
+local function return_item(pos, ntype, metadata, clicker, itemstack)
 
-	local meta = metadata or minetest.get_meta(pos)
+	local meta = metadata or minetest.get_meta(pos) ; if not meta then return end
 
-	if not meta then return end
-
-	local item = meta:get_string("item")
-
-	if item == "" then return end
+	local item = meta:get_string("item") ; if item == "" then return end
 
 	local remaining = itemstack:add_item(item)
 
@@ -318,18 +301,13 @@ end
 
 -- on_place helper function
 
-local frame_place = function(itemstack, placer, pointed_thing)
+local function frame_place(itemstack, placer, pointed_thing)
 
 	if pointed_thing.type ~= "node" then return end
 
 	local above = pointed_thing.above
 	local under = pointed_thing.under
-	local dir = {
-		x = under.x - above.x,
-		y = under.y - above.y,
-		z = under.z - above.z
-	}
-
+	local dir = {x = under.x - above.x, y = under.y - above.y, z = under.z - above.z}
 	local wdir = minetest.dir_to_wallmounted(dir)
 	local placer_pos = placer:get_pos()
 
@@ -354,11 +332,10 @@ local frame_place = function(itemstack, placer, pointed_thing)
 end
 
 -- action logging helper
+
 local function show_msg(message)
 
-	if log_actions then
-		minetest.log("action", message)
-	end
+	if log_actions then minetest.log("action", message) end
 end
 
 -- itemframe node and recipe
@@ -367,12 +344,10 @@ minetest.register_node("itemframes:frame",{
 	description = S("Item frame"),
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
 	},
 	selection_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
 	},
 	tiles = {"itemframes_frame.png"},
 	inventory_image = "itemframes_frame.png",
@@ -395,14 +370,11 @@ minetest.register_node("itemframes:frame",{
 
 	on_rightclick = function(pos, node, clicker, itemstack)
 
-		if not itemstack
-		or minetest.is_protected(pos, clicker:get_player_name()) then
+		if not itemstack or minetest.is_protected(pos, clicker:get_player_name()) then
 			return
 		end
 
-		local meta = minetest.get_meta(pos)
-
-		if not meta then return end
+		local meta = minetest.get_meta(pos) ; if not meta then return end
 
 		if meta:get_string("item") ~= "" then
 
@@ -445,6 +417,7 @@ minetest.register_node("itemframes:frame",{
 			local nx = facedir[p2].nx
 
 			minetest.swap_node(pos, {name = node.name, param2 = nx})
+
 			node.param2 = nx
 		end
 
@@ -483,12 +456,10 @@ minetest.register_node("itemframes:frame_invis",{
 	description = S("Invisible Item frame"),
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
 	},
 	selection_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
 	},
 	tiles = {"itemframes_clear.png"},
 	inventory_image = "itemframes_frame_invis.png",
@@ -512,14 +483,11 @@ minetest.register_node("itemframes:frame_invis",{
 
 	on_rightclick = function(pos, node, clicker, itemstack)
 
-		if not itemstack
-		or minetest.is_protected(pos, clicker:get_player_name()) then
+		if not itemstack or minetest.is_protected(pos, clicker:get_player_name()) then
 			return
 		end
 
-		local meta = minetest.get_meta(pos)
-
-		if not meta then return end
+		local meta = minetest.get_meta(pos) ; if not meta then return end
 
 		if meta:get_string("item") ~= "" then
 
@@ -607,8 +575,7 @@ minetest.register_node("itemframes:pedestal",{
 		}
 	},
 	selection_box = {
-		type = "fixed",
-		fixed = {-7/16, -0.5, -7/16, 7/16, 12/16, 7/16}
+		type = "fixed", fixed = {-7/16, -0.5, -7/16, 7/16, 12/16, 7/16}
 	},
 	tiles = {
 		"itemframes_pedestal_top.png",
@@ -630,14 +597,11 @@ minetest.register_node("itemframes:pedestal",{
 
 	on_rightclick = function(pos, node, clicker, itemstack)
 
-		if not itemstack
-		or minetest.is_protected(pos, clicker:get_player_name()) then
+		if not itemstack or minetest.is_protected(pos, clicker:get_player_name()) then
 			return
 		end
 
-		local meta = minetest.get_meta(pos)
-
-		if not meta then return end
+		local meta = minetest.get_meta(pos) ; if not meta then return end
 
 		if meta:get_string("item") ~= "" then
 
@@ -717,23 +681,15 @@ minetest.register_lbm({
 		pos.y = pos.y + ypos
 
 		local objs = minetest.get_objects_inside_radius(pos, 0.5)
---		local found_any = false
 
 		for _, obj in ipairs(objs) do
 
 			local e = obj:get_luaentity()
 
 			if e and e.name == "itemframes:item" then
-
---				if found_any then
-					obj:remove() -- remove duplicates
---				else
---					found_any = true
---				end
+				obj:remove()
 			end
 		end
-
---		if found_any then return end
 
 		pos.y = pos.y - ypos
 
@@ -748,6 +704,5 @@ if minetest.get_modpath("mesecons_mvps") then
 	mesecon.register_mvps_stopper("itemframes:frame_invis")
 	mesecon.register_mvps_stopper("itemframes:pedestal")
 end
-
 
 print("[MOD] Itemframes loaded")
