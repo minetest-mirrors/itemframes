@@ -219,10 +219,6 @@ local function update_item(pos, ntype, node)
 
 	tmp.glow = def and def.light_source
 
-	local desc = def.description or ""
-
-	meta:set_string("infotext", S("Contains: ") .. desc)
-
 	local e = minetest.add_entity(pos, "itemframes:item")
 
 	if not e then
@@ -338,6 +334,16 @@ local function show_msg(message)
 	if log_actions then minetest.log("action", message) end
 end
 
+-- helper function to return item description
+
+local function get_desc(itemname)
+
+	local def = core.registered_items[itemname]
+	local desc = def and def.description or ""
+
+	return desc
+end
+
 -- itemframe node and recipe
 
 minetest.register_node("itemframes:frame",{
@@ -390,8 +396,10 @@ minetest.register_node("itemframes:frame",{
 
 		else
 			local s = itemstack:take_item()
+			local item = s:to_string()
 
-			meta:set_string("item", s:to_string())
+			meta:set_string("item", item)
+			meta:set_string("infotext", S("Contains: ") .. get_desc(item))
 
 			update_item(pos, "frame", node)
 
@@ -502,8 +510,10 @@ minetest.register_node("itemframes:frame_invis",{
 			end
 		else
 			local s = itemstack:take_item()
+			local item = s:to_string()
 
-			meta:set_string("item", s:to_string())
+			meta:set_string("item", item)
+			meta:set_string("infotext", S("Contains: ") .. get_desc(item))
 
 			update_item(pos, "frame", node)
 
@@ -617,8 +627,10 @@ minetest.register_node("itemframes:pedestal",{
 		else
 
 			local s = itemstack:take_item()
+			local item = s:to_string()
 
-			meta:set_string("item", s:to_string())
+			meta:set_string("item", item)
+			meta:set_string("infotext", S("Contains: ") .. get_desc(item))
 
 			update_item(pos, "pedestal", node)
 
