@@ -350,10 +350,10 @@ minetest.register_node("itemframes:frame",{
 	description = S("Item frame"),
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}
 	},
 	selection_box = {
-		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
 	},
 	tiles = {"itemframes_frame.png"},
 	inventory_image = "itemframes_frame.png",
@@ -464,10 +464,10 @@ minetest.register_node("itemframes:frame_invis",{
 	description = S("Invisible Item frame"),
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}
 	},
 	selection_box = {
-		type = "fixed", fixed = {-0.5, -0.5, 7/16, 0.5, 0.5, 0.5}
+		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
 	},
 	tiles = {"itemframes_clear.png"},
 	inventory_image = "itemframes_frame_invis.png",
