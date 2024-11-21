@@ -356,8 +356,8 @@ minetest.register_node("itemframes:frame",{
 		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
 	},
 	tiles = {"itemframes_frame.png"},
-	inventory_image = "itemframes_frame.png",
-	wield_image = "itemframes_frame.png",
+	inventory_image = "itemframes_frame_inv.png",
+	wield_image = "itemframes_frame_inv.png",
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
@@ -469,9 +469,9 @@ minetest.register_node("itemframes:frame_invis",{
 	selection_box = {
 		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
 	},
-	tiles = {"itemframes_clear.png"},
-	inventory_image = "itemframes_frame_invis.png",
-	wield_image = "itemframes_frame_invis.png",
+	tiles = {"itemframes_frame_invis.png"},
+	inventory_image = "itemframes_frame_invis_inv.png",
+	wield_image = "itemframes_frame_invis_inv.png",
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
