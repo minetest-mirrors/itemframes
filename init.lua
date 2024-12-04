@@ -28,6 +28,22 @@ end
 
 local S = minetest.get_translator("itemframes")
 
+-- remove entities
+
+local function del_ent(pos, self)
+
+	local pos2 = vector.round(pos)
+	local objs = minetest.get_objects_inside_radius(pos2, 0.5)
+
+	for _, obj in pairs(objs) do
+
+		if obj and (self and obj ~= self.object or not self) and obj:get_luaentity()
+		and obj:get_luaentity().name == "itemframes:item" then
+			obj:remove() ; print("--removed", minetest.pos_to_string(pos2))
+		end
+	end
+end
+
 -- item entity
 
 minetest.register_entity("itemframes:item", {
@@ -44,19 +60,8 @@ minetest.register_entity("itemframes:item", {
 	on_activate = function(self, staticdata)
 
 		local pos = self.object:get_pos() ; if not pos then return end
-		local objs = minetest.get_objects_inside_radius(pos, 0.5)
 
-		for _, obj in ipairs(objs) do
-
-			if obj ~= self.object then
-
-				local e = obj:get_luaentity()
-
-				if e and e.name == "itemframes:item" then
-					obj:remove()
-				end
-			end
-		end
+		del_ent(pos, self)
 
 		if tmp.nodename and tmp.texture then
 
@@ -151,29 +156,15 @@ local facedir = {
 	[17] = {x = 0, y = 1, z = 0, pitch = -4.7, yaw = 1, roll = 0, nx = 8},
 }
 
--- remove entities
+-- remove item
 
 local function remove_item(pos, ntype)
 
 	local ypos = 0
 
-	if ntype == "pedestal" then
-		ypos = 1
-	end
+	if ntype == "pedestal" then ypos = 1 end
 
-	local objs = minetest.get_objects_inside_radius(
-			{x = pos.x, y = pos.y + ypos, z = pos.z}, 0.5)
-
-	if objs then
-
-		for _, obj in pairs(objs) do
-
-			if obj and obj:get_luaentity()
-			and obj:get_luaentity().name == "itemframes:item" then
-				obj:remove()
-			end
-		end
-	end
+	del_ent({x = pos.x, y = pos.y + ypos, z = pos.z})
 end
 
 -- update entity
@@ -222,10 +213,7 @@ local function update_item(pos, ntype, node)
 	local e = minetest.add_entity(pos, "itemframes:item")
 
 	if not e then
-		tmp.nodename = nil
-		tmp.texture = nil
-		tmp.glow = nil
-		return
+		tmp.nodename = nil ; tmp.texture = nil ; tmp.glow = nil ; return
 	end
 
 	if ntype == "frame" then
@@ -349,12 +337,8 @@ end
 minetest.register_node("itemframes:frame",{
 	description = S("Item frame"),
 	drawtype = "nodebox",
-	node_box = {
-		type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}
-	},
-	selection_box = {
-		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
-	},
+	node_box = {type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}},
+	selection_box = {type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}},
 	tiles = {"itemframes_frame.png"},
 	inventory_image = "itemframes_frame_inv.png",
 	wield_image = "itemframes_frame_inv.png",
@@ -463,12 +447,8 @@ minetest.register_craft({
 minetest.register_node("itemframes:frame_invis",{
 	description = S("Invisible Item frame"),
 	drawtype = "nodebox",
-	node_box = {
-		type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}
-	},
-	selection_box = {
-		type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}
-	},
+	node_box = {type = "fixed", fixed = {-7/16, -7/16, 7/16, 7/16, 7/16, 0.5}},
+	selection_box = {type = "fixed", fixed = {-6/16, -6/16, 7/16, 6/16, 6/16, 0.5}},
 	tiles = {"itemframes_frame_invis.png"},
 	inventory_image = "itemframes_frame_invis_inv.png",
 	wield_image = "itemframes_frame_invis_inv.png",
@@ -584,9 +564,7 @@ minetest.register_node("itemframes:pedestal",{
 			{-7/16, 11/16, -7/16, 7/16, 12/16, 7/16}, -- top plate
 		}
 	},
-	selection_box = {
-		type = "fixed", fixed = {-7/16, -0.5, -7/16, 7/16, 12/16, 7/16}
-	},
+	selection_box = {type = "fixed", fixed = {-7/16, -0.5, -7/16, 7/16, 12/16, 7/16}},
 	tiles = {
 		"itemframes_pedestal_top.png",
 		"itemframes_pedestal_btm.png",
@@ -692,16 +670,7 @@ minetest.register_lbm({
 
 		pos.y = pos.y + ypos
 
-		local objs = minetest.get_objects_inside_radius(pos, 0.5)
-
-		for _, obj in ipairs(objs) do
-
-			local e = obj:get_luaentity()
-
-			if e and e.name == "itemframes:item" then
-				obj:remove()
-			end
-		end
+		del_ent(pos)
 
 		pos.y = pos.y - ypos
 
