@@ -39,7 +39,7 @@ local function del_ent(pos, self)
 
 		if obj and (self and obj ~= self.object or not self) and obj:get_luaentity()
 		and obj:get_luaentity().name == "itemframes:item" then
-			obj:remove() ; print("--removed", minetest.pos_to_string(pos2))
+			obj:remove()
 		end
 	end
 end
